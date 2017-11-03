@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2006
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3202678B-EECF-46E3-9631-C026CAE9D62B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RvtTestRunner", "src\RvtTestRunner\RvtTestRunner.csproj", "{9D680C27-E296-4024-9399-8EF8F2A9522D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		2015|x64 = 2015|x64
+		2015-Release|x64 = 2015-Release|x64
+		2016|x64 = 2016|x64
+		2016-Release|x64 = 2016-Release|x64
+		2017|x64 = 2017|x64
+		2017-Release|x64 = 2017-Release|x64
+		2018|x64 = 2018|x64
+		2018-Release|x64 = 2018-Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2015|x64.ActiveCfg = 2015|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2015|x64.Build.0 = 2015|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2015-Release|x64.ActiveCfg = 2015-Release|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2015-Release|x64.Build.0 = 2015-Release|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2016|x64.ActiveCfg = 2016|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2016|x64.Build.0 = 2016|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2016-Release|x64.ActiveCfg = 2016-Release|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2016-Release|x64.Build.0 = 2016-Release|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2017|x64.ActiveCfg = 2017|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2017|x64.Build.0 = 2017|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2017-Release|x64.ActiveCfg = 2017-Release|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2017-Release|x64.Build.0 = 2017-Release|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2018|x64.ActiveCfg = 2018|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2018|x64.Build.0 = 2018|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2018-Release|x64.ActiveCfg = 2018-Release|x64
+		{9D680C27-E296-4024-9399-8EF8F2A9522D}.2018-Release|x64.Build.0 = 2018-Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9D680C27-E296-4024-9399-8EF8F2A9522D} = {3202678B-EECF-46E3-9631-C026CAE9D62B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {844A24A5-F23E-418D-8380-BC0BB0130363}
+	EndGlobalSection
+EndGlobal

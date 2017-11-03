@@ -1,0 +1,118 @@
+﻿// <copyright file="XunitPackageCompilationAssemblyResolver.cs" company="StarkBIM Inc">
+// Copyright (c) StarkBIM Inc. All rights reserved.
+// </copyright>
+
+namespace RvtTestRunner.Runner
+{
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+
+    using Microsoft.DotNet.PlatformAbstractions;
+    using Microsoft.Extensions.DependencyModel;
+    using Microsoft.Extensions.DependencyModel.Resolution;
+
+    using Xunit.Abstractions;
+    using Xunit.Sdk;
+
+    internal class XunitPackageCompilationAssemblyResolver : ICompilationAssemblyResolver
+    {
+        private static readonly IFileSystem FileSystem = new FileSystemWrapper();
+
+        private readonly List<string> _nugetPackageDirectories;
+
+        public XunitPackageCompilationAssemblyResolver(IMessageSink internalDiagnosticsMessageSink)
+        {
+            _nugetPackageDirectories = GetDefaultProbeDirectories(internalDiagnosticsMessageSink);
+        }
+
+        public bool TryResolveAssemblyPaths(CompilationLibrary library, List<string> assemblies)
+        {
+            if (_nugetPackageDirectories.Count == 0 || !string.Equals(library.Type, "package", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            foreach (var directory in _nugetPackageDirectories)
+            {
+                if (!ResolverUtils.TryResolvePackagePath(FileSystem, library, directory, out var packagePath))
+                {
+                    continue;
+                }
+
+                if (!TryResolveFromPackagePath(library, packagePath, out var fullPathsFromPackage))
+                {
+                    continue;
+                }
+
+                assemblies.AddRange(fullPathsFromPackage);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static List<string> GetDefaultProbeDirectories(IMessageSink internalDiagnosticsMessageSink) =>
+            GetDefaultProbeDirectories(RuntimeEnvironment.OperatingSystemPlatform, internalDiagnosticsMessageSink);
+
+        private static List<string> GetDefaultProbeDirectories(Platform osPlatform, IMessageSink internalDiagnosticsMessageSink)
+        {
+            var results = new HashSet<string>();
+
+#if NETCOREAPP1_0 // The fact that the original code would only use PROBING_DIRECTORIES was causing failures to load
+// referenced packages, so instead we'll use PROBING_DIRECTORIES as a supplemental folder.
+            var probeDirectories = AppContext.GetData("PROBING_DIRECTORIES");
+            var listOfDirectories = probeDirectories as string;
+
+            if (!string.IsNullOrEmpty(listOfDirectories))
+                foreach (var directory in listOfDirectories.Split(new char[] { Path.PathSeparator }, StringSplitOptions.RemoveEmptyEntries))
+                    results.Add(directory);
+#endif
+
+            // Allow the user to override the default location of NuGet packages
+            var packageDirectory = Environment.GetEnvironmentVariable("NUGET_PACKAGES");
+            if (!string.IsNullOrEmpty(packageDirectory))
+            {
+                results.Add(packageDirectory);
+            }
+            else
+            {
+                string basePath = Environment.GetEnvironmentVariable(osPlatform == Platform.Windows ? "USERPROFILE" : "HOME");
+
+                if (!string.IsNullOrEmpty(basePath))
+                {
+                    results.Add(Path.Combine(basePath, ".nuget", "packages"));
+                }
+            }
+
+            internalDiagnosticsMessageSink?.OnMessage(
+                                                      new DiagnosticMessage(
+                                                                            $"[XunitPackageCompilationAssemblyResolver.GetDefaultProbeDirectories] returns: [{string.Join(",", results.Select(x => $"'{x}'"))}]"));
+
+            return results.ToList();
+        }
+
+        private static bool TryResolveFromPackagePath(CompilationLibrary library, string basePath, out IEnumerable<string> results)
+        {
+            var paths = new List<string>();
+
+            foreach (var assembly in library.Assemblies)
+            {
+                if (!ResolverUtils.TryResolveAssemblyFile(FileSystem, basePath, assembly, out var fullName))
+                {
+                    // if one of the files can't be found, skip this package path completely.
+                    // there are package paths that don't include all of the "ref" assemblies 
+                    // (ex. ones created by 'dotnet store')
+                    results = null;
+                    return false;
+                }
+
+                paths.Add(fullName);
+            }
+
+            results = paths;
+            return true;
+        }
+    }
+}
