@@ -7,26 +7,29 @@ namespace RvtTestRunner.Runner
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using JetBrains.Annotations;
 
     public static class DictionaryExtensions
     {
-        public static void Add<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, TValue value)
+        public static void Add<TKey, TValue>([NotNull] this IDictionary<TKey, List<TValue>> dictionary, [NotNull] TKey key, [NotNull] TValue value)
         {
             dictionary.GetOrAdd(key).Add(value);
         }
 
-        public static bool Contains<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, TValue value, IEqualityComparer<TValue> valueComparer)
+        public static bool Contains<TKey, TValue>([NotNull] this IDictionary<TKey, List<TValue>> dictionary, [NotNull] TKey key, [NotNull] TValue value, [NotNull] IEqualityComparer<TValue> valueComparer)
         {
             return dictionary.TryGetValue(key, out List<TValue> values) && values.Contains(value, valueComparer);
         }
 
-        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+        [NotNull]
+        public static TValue GetOrAdd<TKey, TValue>([NotNull] this IDictionary<TKey, TValue> dictionary, [NotNull] TKey key)
             where TValue : new()
         {
             return dictionary.GetOrAdd(key, () => new TValue());
         }
 
-        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> newValue)
+        [NotNull]
+        public static TValue GetOrAdd<TKey, TValue>([NotNull] this IDictionary<TKey, TValue> dictionary, [NotNull] TKey key, [NotNull] Func<TValue> newValue)
         {
             if (dictionary.TryGetValue(key, out TValue result))
             {
@@ -39,15 +42,19 @@ namespace RvtTestRunner.Runner
             return result;
         }
 
-        public static Dictionary<TKey, TValue> ToDictionaryIgnoringDuplicateKeys<TKey, TValue>(this IEnumerable<TValue> values,
-                                                                                               Func<TValue, TKey> keySelector,
-                                                                                               IEqualityComparer<TKey> comparer = null)
+        [NotNull]
+        public static Dictionary<TKey, TValue> ToDictionaryIgnoringDuplicateKeys<TKey, TValue>(
+            [NotNull][ItemNotNull] this IEnumerable<TValue> values,
+            [NotNull] Func<TValue, TKey> keySelector,
+            [CanBeNull] IEqualityComparer<TKey> comparer = null)
             => ToDictionaryIgnoringDuplicateKeys(values, keySelector, x => x, comparer);
 
-        public static Dictionary<TKey, TValue> ToDictionaryIgnoringDuplicateKeys<TInput, TKey, TValue>(this IEnumerable<TInput> inputValues,
-                                                                                                       Func<TInput, TKey> keySelector,
-                                                                                                       Func<TInput, TValue> valueSelector,
-                                                                                                       IEqualityComparer<TKey> comparer = null)
+        [NotNull]
+        public static Dictionary<TKey, TValue> ToDictionaryIgnoringDuplicateKeys<TInput, TKey, TValue>(
+            [NotNull][ItemNotNull] this IEnumerable<TInput> inputValues,
+            [NotNull] Func<TInput, TKey> keySelector,
+            [NotNull] Func<TInput, TValue> valueSelector,
+            [CanBeNull] IEqualityComparer<TKey> comparer = null)
         {
             var result = new Dictionary<TKey, TValue>(comparer);
 

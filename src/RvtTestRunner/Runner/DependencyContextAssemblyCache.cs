@@ -10,6 +10,8 @@ namespace RvtTestRunner.Runner
     using System.Linq;
     using System.Reflection;
 
+    using JetBrains.Annotations;
+
     using Microsoft.DotNet.PlatformAbstractions;
     using Microsoft.Extensions.DependencyModel;
 
@@ -18,37 +20,56 @@ namespace RvtTestRunner.Runner
 
     internal class DependencyContextAssemblyCache
     {
+        [NotNull]
         private static readonly Tuple<string, Assembly> ManagedAssemblyNotFound = new Tuple<string, Assembly>(null, null);
 
+        [NotNull]
         private readonly string _assemblyFolder;
 
+        [NotNull]
         private readonly XunitPackageCompilationAssemblyResolver _assemblyResolver;
 
+        [CanBeNull]
         private readonly IMessageSink _internalDiagnosticsMessageSink;
 
+        [NotNull]
         private readonly Dictionary<string, Assembly> _managedAssemblyCache;
 
+        [NotNull]
         private readonly Dictionary<string, Tuple<RuntimeLibrary, RuntimeAssetGroup>> _managedAssemblyMap;
 
-        public DependencyContextAssemblyCache(string assemblyFolder,
-                                              DependencyContext dependencyContext,
-                                              IMessageSink internalDiagnosticsMessageSink)
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DependencyContextAssemblyCache" /> class.
+        /// </summary>
+        /// <param name="assemblyFolder">The assembly folder</param>
+        /// <param name="dependencyContext">The dependency context</param>
+        /// <param name="internalDiagnosticsMessageSink">The message sink</param>
+        public DependencyContextAssemblyCache(
+            [NotNull] string assemblyFolder,
+            [NotNull] DependencyContext dependencyContext,
+            [CanBeNull] IMessageSink internalDiagnosticsMessageSink)
         {
             _assemblyFolder = assemblyFolder;
             _internalDiagnosticsMessageSink = internalDiagnosticsMessageSink;
 
             _assemblyResolver = new XunitPackageCompilationAssemblyResolver(internalDiagnosticsMessageSink);
 
-            internalDiagnosticsMessageSink?.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache..ctor] Runtime graph: [{string.Join(",", dependencyContext.RuntimeGraph.Select(x => $"'{x.Runtime}'"))}]"));
+            internalDiagnosticsMessageSink?.OnMessage(
+                                                      new DiagnosticMessage(
+                                                                            $"[DependencyContextAssemblyCache..ctor] Runtime graph: [{string.Join(",", dependencyContext.RuntimeGraph.Select(x => $"'{x.Runtime}'"))}]"));
 
             var currentRuntime = RuntimeEnvironment.GetRuntimeIdentifier();
             var fallbacks = dependencyContext.RuntimeGraph.FirstOrDefault(x => string.Equals(x.Runtime, currentRuntime, StringComparison.OrdinalIgnoreCase));
-            HashSet<string> compatibleRuntimes = fallbacks != null ? new HashSet<string>(fallbacks.Fallbacks, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> compatibleRuntimes = fallbacks != null
+                                                     ? new HashSet<string>(fallbacks.Fallbacks, StringComparer.OrdinalIgnoreCase)
+                                                     : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             compatibleRuntimes.Add(currentRuntime);
             compatibleRuntimes.Add(string.Empty);
 
-            internalDiagnosticsMessageSink?.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache..ctor] Compatible runtimes: [{string.Join(",", compatibleRuntimes.Select(x => $"'{x}'"))}]"));
+            internalDiagnosticsMessageSink?.OnMessage(
+                                                      new DiagnosticMessage(
+                                                                            $"[DependencyContextAssemblyCache..ctor] Compatible runtimes: [{string.Join(",", compatibleRuntimes.Select(x => $"'{x}'"))}]"));
 
             _managedAssemblyCache = new Dictionary<string, Assembly>(StringComparer.OrdinalIgnoreCase);
             _managedAssemblyMap =
@@ -56,10 +77,14 @@ namespace RvtTestRunner.Runner
                     .Where(lib => lib.RuntimeAssemblyGroups?.Count > 0)
                     .Select(lib => Tuple.Create(lib, lib.RuntimeAssemblyGroups.FirstOrDefault(libGroup => compatibleRuntimes.Contains(libGroup.Runtime))))
                     .Where(tuple => tuple.Item2?.AssetPaths != null)
-                    .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null).Select(path => Tuple.Create(Path.GetFileNameWithoutExtension(path), Tuple.Create(tuple.Item1, tuple.Item2))))
+                    .SelectMany(
+                                tuple => tuple.Item2.AssetPaths.Where(x => x != null)
+                                    .Select(path => Tuple.Create(Path.GetFileNameWithoutExtension(path), Tuple.Create(tuple.Item1, tuple.Item2))))
                     .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item1, tuple => tuple.Item2, StringComparer.OrdinalIgnoreCase);
 
-            internalDiagnosticsMessageSink?.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache..ctor] Managed assembly map includes: {string.Join(",", _managedAssemblyMap.Keys.Select(k => $"'{k}'").OrderBy(k => k, StringComparer.OrdinalIgnoreCase))}"));
+            internalDiagnosticsMessageSink?.OnMessage(
+                                                      new DiagnosticMessage(
+                                                                            $"[DependencyContextAssemblyCache..ctor] Managed assembly map includes: {string.Join(",", _managedAssemblyMap.Keys.Select(k => $"'{k}'").OrderBy(k => k, StringComparer.OrdinalIgnoreCase))}"));
 
 #if NETCOREAPP1_0
             unmanagedAssemblyCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -76,7 +101,8 @@ namespace RvtTestRunner.Runner
 #endif
         }
 
-        public Assembly LoadManagedDll(string assemblyName, Func<string, Assembly> managedAssemblyLoader)
+        [CanBeNull]
+        public Assembly LoadManagedDll([NotNull] string assemblyName, [NotNull] Func<string, Assembly> managedAssemblyLoader)
         {
             if (_managedAssemblyCache.TryGetValue(assemblyName, out var result))
             {
@@ -96,14 +122,15 @@ namespace RvtTestRunner.Runner
             }
 
             _internalDiagnosticsMessageSink.OnMessage(
-                                                     result == null
-                                                         ? new DiagnosticMessage("[DependencyContextAssemblyCache.LoadManagedDll] Resolution failed, passed down to next resolver")
-                                                         : new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Successful: '{resolvedAssemblyPath}'"));
+                                                      result == null
+                                                          ? new DiagnosticMessage("[DependencyContextAssemblyCache.LoadManagedDll] Resolution failed, passed down to next resolver")
+                                                          : new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Successful: '{resolvedAssemblyPath}'"));
 
             return result;
         }
 
-        private Tuple<string, Assembly> ResolveManagedAssembly(string assemblyName, Func<string, Assembly> managedAssemblyLoader)
+        [NotNull]
+        private Tuple<string, Assembly> ResolveManagedAssembly([NotNull] string assemblyName, [NotNull] Func<string, Assembly> managedAssemblyLoader)
         {
             // Try to find dependency in the local folder
             var assemblyPath = Path.Combine(_assemblyFolder, assemblyName);
@@ -139,8 +166,14 @@ namespace RvtTestRunner.Runner
             {
                 var library = libraryTuple.Item1;
                 var assetGroup = libraryTuple.Item2;
-                var wrapper = new CompilationLibrary(library.Type, library.Name, library.Version, library.Hash,
-                                                     assetGroup.AssetPaths, library.Dependencies, library.Serviceable);
+                var wrapper = new CompilationLibrary(
+                                                     library.Type,
+                                                     library.Name,
+                                                     library.Version,
+                                                     library.Hash,
+                                                     assetGroup.AssetPaths,
+                                                     library.Dependencies,
+                                                     library.Serviceable);
 
                 var assemblies = new List<string>();
                 if (_assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies))
@@ -156,24 +189,29 @@ namespace RvtTestRunner.Runner
                             return Tuple.Create(resolvedAssemblyPath, assembly);
                         }
 
-                        _internalDiagnosticsMessageSink?.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveManagedAssembly] Found assembly path '{resolvedAssemblyPath}' but the assembly would not load"));
+                        _internalDiagnosticsMessageSink?.OnMessage(
+                                                                   new DiagnosticMessage(
+                                                                                         $"[DependencyContextAssemblyCache.ResolveManagedAssembly] Found assembly path '{resolvedAssemblyPath}' but the assembly would not load"));
                     }
                     else
                     {
-                        _internalDiagnosticsMessageSink?.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveManagedAssembly] Found a resolved path, but could not map a filename in [{string.Join(",", assemblies.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
+                        _internalDiagnosticsMessageSink?.OnMessage(
+                                                                   new DiagnosticMessage(
+                                                                                         $"[DependencyContextAssemblyCache.ResolveManagedAssembly] Found a resolved path, but could not map a filename in [{string.Join(",", assemblies.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
                     }
                 }
                 else
                 {
-                    _internalDiagnosticsMessageSink?.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveManagedAssembly] Found in dependency map, but unable to resolve a path in [{string.Join(",", assetGroup.AssetPaths.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
+                    _internalDiagnosticsMessageSink?.OnMessage(
+                                                               new DiagnosticMessage(
+                                                                                     $"[DependencyContextAssemblyCache.ResolveManagedAssembly] Found in dependency map, but unable to resolve a path in [{string.Join(",", assetGroup.AssetPaths.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
                 }
             }
 
             return ManagedAssemblyNotFound;
         }
 
-#if NETCOREAPP1_0
-// Unmanaged DLL support
+#if NETCOREAPP1_0 // Unmanaged DLL support
 
         static readonly string[] UnmanagedDllFormats = GetUnmanagedDllFormats().ToArray();
 
@@ -232,12 +270,14 @@ namespace RvtTestRunner.Runner
                 {
                     var library = libraryTuple.Item1;
                     var assetGroup = libraryTuple.Item2;
-                    var wrapper = new CompilationLibrary(library.Type, library.Name, library.Version, library.Hash, assetGroup.AssetPaths, library.Dependencies, library.Serviceable);
+                    var wrapper =
+new CompilationLibrary(library.Type, library.Name, library.Version, library.Hash, assetGroup.AssetPaths, library.Dependencies, library.Serviceable);
 
                     var assemblies = new List<string>();
                     if (assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies))
                     {
-                        var resolvedAssemblyPath = assemblies.FirstOrDefault(a => string.Equals(formattedUnmanagedDllName, Path.GetFileName(a), StringComparison.OrdinalIgnoreCase));
+                        var resolvedAssemblyPath =
+assemblies.FirstOrDefault(a => string.Equals(formattedUnmanagedDllName, Path.GetFileName(a), StringComparison.OrdinalIgnoreCase));
                         if (resolvedAssemblyPath != null)
                             return Path.GetFullPath(resolvedAssemblyPath);
 

@@ -10,6 +10,9 @@ namespace RvtTestRunner
 
     using JetBrains.Annotations;
 
+    /// <summary>
+    /// The external application class that is loaded by Revit
+    /// </summary>
     public class App : IExternalApplication
     {
         /// <inheritdoc />

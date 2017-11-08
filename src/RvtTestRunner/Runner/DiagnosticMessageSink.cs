@@ -5,13 +5,13 @@
 namespace RvtTestRunner.Runner
 {
     using System;
-
+    using JetBrains.Annotations;
     using Xunit;
     using Xunit.Abstractions;
 
     public class DiagnosticMessageSink : TestMessageSink
     {
-        public DiagnosticMessageSink(Action<MessageHandlerArgs<IDiagnosticMessage>, string> logAction, string assemblyDisplayName, bool showDiagnostics)
+        public DiagnosticMessageSink([NotNull] Action<MessageHandlerArgs<IDiagnosticMessage>, string> logAction, [NotNull] string assemblyDisplayName, bool showDiagnostics)
         {
             if (showDiagnostics)
             {

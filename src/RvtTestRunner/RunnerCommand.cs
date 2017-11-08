@@ -8,6 +8,7 @@ namespace RvtTestRunner
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
 
     using Autodesk.Revit.Attributes;
     using Autodesk.Revit.DB;
@@ -16,14 +17,21 @@ namespace RvtTestRunner
     using JetBrains.Annotations;
 
     using RvtTestRunner.Runner;
+    using RvtTestRunner.UI;
+    using RvtTestRunner.Util;
 
-    using Xunit;
-
-    using TaskDialog = Autodesk.Revit.UI.TaskDialog;
-
+    /// <summary>
+    ///     The external command that will allow a user to select assemblies and run tests
+    ///     Next steps:
+    ///     Run tests in background (but on Revit thread) while keeping the window open
+    ///     Add all of the various options that XUnit provides to the window
+    /// </summary>
     [Transaction(TransactionMode.Manual)]
     public class RunnerCommand : IExternalCommand
     {
+        /// <summary>
+        ///     Gets a static instance of the external command data used by this class, which is available for unit tests to use
+        /// </summary>
         [CanBeNull]
         public static ExternalCommandData CommandData { get; private set; }
 
@@ -34,25 +42,64 @@ namespace RvtTestRunner
             {
                 CommandData = commandData ?? throw new ArgumentNullException(nameof(commandData));
 
-                IRunnerLogger logger = new RvtRunnerLogger();
-                var testRunner = new TestRunner(logger);
+                var testRunnerControlViewModel = new TestRunnerControlViewModel();
 
-                // Cheat and hardcode the assembly for now
-                const string AssemblyFileName =
-                    @"C:\Users\Colin\Source\Repos\SampleRevitAddin\test\StarkBIM.SampleRevitApp.RvtAddin.Test\bin\x64\2017\StarkBIM.SampleRevitApp.RvtAddin.Test.dll";
+                var testRunnerWindow = new TestRunnerWindow
+                    {
+                        DataContext = testRunnerControlViewModel
+                    };
 
-                if (!File.Exists(AssemblyFileName))
+                if (testRunnerWindow.ShowDialog() != true)
                 {
-                    TaskDialog.Show("Error", "File does not exist");
+                    return Result.Cancelled;
+                }
+
+                List<string> selectedAssemblyList = testRunnerControlViewModel.SelectedAssemblies.ToList();
+
+                if (!selectedAssemblyList.Any())
+                {
+                    TaskDialog.Show("Error", "No assemblies selected");
                     return Result.Failed;
                 }
 
-                (string AssemblyFileName, string Config) assembly =
-                    (AssemblyFileName, null);
+                var nonExistentAssemblies = selectedAssemblyList.Where(a => !File.Exists(a)).ToList();
 
-                var result = testRunner.Run(new List<(string AssemblyFileName, string Config)> { assembly });
+                if (nonExistentAssemblies.Any())
+                {
+                    TaskDialog.Show("Error", $"One or more assemblies does not exist: {nonExistentAssemblies.JoinList(", ")}");
+                    return Result.Failed;
+                }
+
+                var assemblyList = selectedAssemblyList.Select(selectedAssembly => ((string AssemblyFileName, string Config))(selectedAssembly, null)).ToList();
+
+                Stopwatch stopWatch = Stopwatch.StartNew();
+
+                RvtRunnerLogger logger = new RvtRunnerLogger(stopWatch);
+                var testRunner = new TestRunner(logger);
+
+                /*
+                // Cheat and hardcode the assembly for now
+                const string AssemblyFileName =
+                    @"C:\Users\Colin\Source\Repos\SampleRevitAddin\test\StarkBIM.SampleRevitApp.RvtAddin.Test\bin\x64\2017\StarkBIM.SampleRevitApp.RvtAddin.Test.dll";*/
+
+                var result = testRunner.Run(assemblyList);
+
+                stopWatch.Stop();
+
+                string allMessages = logger.AllMessages.JoinList();
+
+                new TaskDialog("Result")
+                    {
+                        MainInstruction = $"Returned result: {result}. Total time elapsed: {stopWatch.Elapsed}",
+                        ExpandedContent = allMessages
+                    }.Show();
 
                 Debug.WriteLine(result);
+            }
+            catch (Exception ex)
+            {
+                TaskDialog.Show("Error", $"{ex.GetType()} - {ex.Message}");
+                return Result.Failed;
             }
             finally
             {

@@ -10,11 +10,21 @@ namespace RvtTestRunner.Runner
 
     using JetBrains.Annotations;
 
+    using RvtTestRunner.Util;
+
     using Xunit;
 
+    /// <summary>
+    /// The set of options for a test run
+    /// </summary>
     public class TestRunOptions
     {
-        public TestRunOptions(List<(string AssemblyFileName, string ConfigFile)> assemblies, IRunnerReporter reporter)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestRunOptions"/> class.
+        /// </summary>
+        /// <param name="assemblies">A list of tuples containing the assembly path and the assembly configuration file (configuration file is not yet supported)</param>
+        /// <param name="reporter">The reporter</param>
+        public TestRunOptions([NotNull] List<(string AssemblyFileName, string ConfigFile)> assemblies, [NotNull] IRunnerReporter reporter)
         {
             Reporter = reporter;
             Project = GetProjectFile(assemblies);
@@ -28,6 +38,7 @@ namespace RvtTestRunner.Runner
 
         public bool FailSkips { get; set; }
 
+        [CanBeNull]
         public int? MaxParallelThreads { get; set; }
 
         public bool NoAppDomain { get; set; }
@@ -42,12 +53,17 @@ namespace RvtTestRunner.Runner
         public bool Pause { get; set; }
 #endif
 
+        [NotNull]
+        [ItemNotNull]
         public XunitProject Project { get; }
 
+        [CanBeNull]
         public bool? ParallelizeAssemblies { get; set; }
 
+        [CanBeNull]
         public bool? ParallelizeTestCollections { get; set; }
 
+        [NotNull]
         public IRunnerReporter Reporter { get; }
 
         public bool Serialize { get; set; }
@@ -56,7 +72,8 @@ namespace RvtTestRunner.Runner
 
         public bool Wait { get; set; }
 
-        private static string GetFullPath(string fileName)
+        [NotNull]
+        private static string GetFullPath([NotNull] string fileName)
         {
             return Path.GetFullPath(fileName);
         }

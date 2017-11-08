@@ -6,11 +6,17 @@ namespace RvtTestRunner.Runner
 {
     using System;
     using System.Xml.Linq;
+    using JetBrains.Annotations;
 
     public class Transform
     {
+        [NotNull]
         public string CommandLine { get; set; }
+
+        [NotNull]
         public string Description { get; set; }
+
+        [NotNull]
         public Action<XElement, string> OutputHandler { get; set; }
     }
 }

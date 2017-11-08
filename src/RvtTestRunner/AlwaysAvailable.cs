@@ -9,6 +9,9 @@ namespace RvtTestRunner
 
     using JetBrains.Annotations;
 
+    /// <summary>
+    /// External command availability for Revit external commands that makes commands always available to run
+    /// </summary>
     public class AlwaysAvailable : IExternalCommandAvailability
     {
         /// <inheritdoc />

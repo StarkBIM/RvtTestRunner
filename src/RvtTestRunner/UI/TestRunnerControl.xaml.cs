@@ -9,6 +9,9 @@ namespace RvtTestRunner.UI
     /// </summary>
     public partial class TestRunnerControl
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestRunnerControl"/> class.
+        /// </summary>
         public TestRunnerControl()
         {
             InitializeComponent();

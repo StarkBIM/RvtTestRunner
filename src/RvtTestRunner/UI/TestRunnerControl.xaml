@@ -1,5 +1,4 @@
 ﻿<UserControl x:Class="RvtTestRunner.UI.TestRunnerControl"
-             x:Name="TestRunnerWindow"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -32,8 +31,8 @@
         <Button Grid.Row="2" Grid.Column="0" Content="Add" Command="{Binding Path=BrowseCommand}" />
         <Button Grid.Row="2" Grid.Column="1" Content="Remove" Command="{Binding Path=RemoveCommand}" />
         <Button Grid.Row="3" Grid.Column="0" Content="Execute" Command="{Binding Path=ExecuteCommand}"
-                CommandParameter="{Binding ElementName=TestRunnerWindow}" />
+                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
         <Button Grid.Row="3" Grid.Column="1" Content="Cancel" Command="{Binding Path=CancelCommand}"
-                CommandParameter="{Binding ElementName=TestRunnerWindow}" />
+                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
     </Grid>
 </UserControl>

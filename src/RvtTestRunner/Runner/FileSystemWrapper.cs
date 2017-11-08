@@ -4,8 +4,11 @@
 
 namespace RvtTestRunner.Runner
 {
+    using JetBrains.Annotations;
+
     internal class FileSystemWrapper : IFileSystem
     {
+        [NotNull]
         public static IFileSystem Default { get; } = new FileSystemWrapper();
 
         public IFile File { get; } = new FileWrapper();

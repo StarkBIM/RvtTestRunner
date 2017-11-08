@@ -11,16 +11,28 @@ namespace RvtTestRunner.Runner
 
     using Xunit;
 
+    /// <summary>
+    /// The test runner. This class might be unnecessary as it initializes an RvtRunner instance
+    /// </summary>
     public class TestRunner
     {
         [NotNull]
         private readonly IRunnerLogger _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestRunner"/> class.
+        /// </summary>
+        /// <param name="logger">The logger</param>
         public TestRunner([NotNull] IRunnerLogger logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        /// <summary>
+        /// Runs all tests contained in the given assemblies (config is not handled yet)
+        /// </summary>
+        /// <param name="assemblies">The paths for assemblies containing tests to be run</param>
+        /// <returns>The number of failed tests, or -1 if cancelled</returns>
         public int Run([NotNull] List<(string AssemblyFileName, string ConfigFile)> assemblies)
         {
             if (assemblies == null)

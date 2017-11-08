@@ -4,8 +4,10 @@
 
 namespace RvtTestRunner.Runner
 {
+    using JetBrains.Annotations;
+
     internal interface IDirectory
     {
-        bool Exists(string path);
+        bool Exists([NotNull] string path);
     }
 }

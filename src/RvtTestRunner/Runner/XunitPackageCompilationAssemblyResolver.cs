@@ -8,26 +8,27 @@ namespace RvtTestRunner.Runner
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-
+    using JetBrains.Annotations;
     using Microsoft.DotNet.PlatformAbstractions;
     using Microsoft.Extensions.DependencyModel;
     using Microsoft.Extensions.DependencyModel.Resolution;
-
     using Xunit.Abstractions;
     using Xunit.Sdk;
 
     internal class XunitPackageCompilationAssemblyResolver : ICompilationAssemblyResolver
     {
+        [NotNull]
         private static readonly IFileSystem FileSystem = new FileSystemWrapper();
-
+        [NotNull]
+        [ItemNotNull]
         private readonly List<string> _nugetPackageDirectories;
 
-        public XunitPackageCompilationAssemblyResolver(IMessageSink internalDiagnosticsMessageSink)
+        public XunitPackageCompilationAssemblyResolver([CanBeNull] IMessageSink internalDiagnosticsMessageSink)
         {
             _nugetPackageDirectories = GetDefaultProbeDirectories(internalDiagnosticsMessageSink);
         }
 
-        public bool TryResolveAssemblyPaths(CompilationLibrary library, List<string> assemblies)
+        public bool TryResolveAssemblyPaths([NotNull] CompilationLibrary library, [NotNull][ItemNotNull] List<string> assemblies)
         {
             if (_nugetPackageDirectories.Count == 0 || !string.Equals(library.Type, "package", StringComparison.OrdinalIgnoreCase))
             {
@@ -53,10 +54,14 @@ namespace RvtTestRunner.Runner
             return false;
         }
 
-        private static List<string> GetDefaultProbeDirectories(IMessageSink internalDiagnosticsMessageSink) =>
+        [NotNull]
+        [ItemNotNull]
+        private static List<string> GetDefaultProbeDirectories([CanBeNull] IMessageSink internalDiagnosticsMessageSink) =>
             GetDefaultProbeDirectories(RuntimeEnvironment.OperatingSystemPlatform, internalDiagnosticsMessageSink);
 
-        private static List<string> GetDefaultProbeDirectories(Platform osPlatform, IMessageSink internalDiagnosticsMessageSink)
+        [NotNull]
+        [ItemNotNull]
+        private static List<string> GetDefaultProbeDirectories(Platform osPlatform, [CanBeNull] IMessageSink internalDiagnosticsMessageSink)
         {
             var results = new HashSet<string>();
 
@@ -93,7 +98,8 @@ namespace RvtTestRunner.Runner
             return results.ToList();
         }
 
-        private static bool TryResolveFromPackagePath(CompilationLibrary library, string basePath, out IEnumerable<string> results)
+        [ContractAnnotation("=>true,results:notnull;=>false,results:null")]
+        private static bool TryResolveFromPackagePath([NotNull] CompilationLibrary library, [NotNull] string basePath, [CanBeNull][ItemNotNull] out IEnumerable<string> results)
         {
             var paths = new List<string>();
 
@@ -102,7 +108,7 @@ namespace RvtTestRunner.Runner
                 if (!ResolverUtils.TryResolveAssemblyFile(FileSystem, basePath, assembly, out var fullName))
                 {
                     // if one of the files can't be found, skip this package path completely.
-                    // there are package paths that don't include all of the "ref" assemblies 
+                    // there are package paths that don't include all of the "ref" assemblies
                     // (ex. ones created by 'dotnet store')
                     results = null;
                     return false;

@@ -12,52 +12,58 @@ namespace RvtTestRunner.Runner
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Xsl;
-
+    using JetBrains.Annotations;
+    using RvtTestRunner.Util;
     using Xunit;
 
     public class TransformFactory
     {
+        [NotNull]
         private static readonly TransformFactory Instance = new TransformFactory();
-
+        [NotNull]
         private readonly Dictionary<string, Transform> _availableTransforms = new Dictionary<string, Transform>(StringComparer.OrdinalIgnoreCase);
 
         private TransformFactory()
         {
             _availableTransforms.Add("xml", new Transform
-                {
-                    CommandLine = "xml",
-                    Description = "output results to xUnit.net v2 XML file",
-                    OutputHandler = Handler_DirectWrite
-                });
+            {
+                CommandLine = "xml",
+                Description = "output results to xUnit.net v2 XML file",
+                OutputHandler = Handler_DirectWrite
+            });
             _availableTransforms.Add("xmlv1", new Transform
-                {
-                    CommandLine = "xmlv1",
-                    Description = "output results to xUnit.net v1 XML file",
-                    OutputHandler = (xml, outputFileName) => Handler_XslTransform("xUnit1.xslt", xml, outputFileName)
-                });
+            {
+                CommandLine = "xmlv1",
+                Description = "output results to xUnit.net v1 XML file",
+                OutputHandler = (xml, outputFileName) => Handler_XslTransform("xUnit1.xslt", xml, outputFileName)
+            });
             _availableTransforms.Add("html", new Transform
-                {
-                    CommandLine = "html",
-                    Description = "output results to HTML file",
-                    OutputHandler = (xml, outputFileName) => Handler_XslTransform("HTML.xslt", xml, outputFileName)
-                });
+            {
+                CommandLine = "html",
+                Description = "output results to HTML file",
+                OutputHandler = (xml, outputFileName) => Handler_XslTransform("HTML.xslt", xml, outputFileName)
+            });
             _availableTransforms.Add("nunit", new Transform
-                {
-                    CommandLine = "nunit",
-                    Description = "output results to NUnit v2.5 XML file",
-                    OutputHandler = (xml, outputFileName) => Handler_XslTransform("NUnitXml.xslt", xml, outputFileName)
-                });
+            {
+                CommandLine = "nunit",
+                Description = "output results to NUnit v2.5 XML file",
+                OutputHandler = (xml, outputFileName) => Handler_XslTransform("NUnitXml.xslt", xml, outputFileName)
+            });
         }
 
+        [NotNull]
+        [ItemNotNull]
         public static List<Transform> AvailableTransforms
             => Instance._availableTransforms.Values.ToList();
 
-        public static List<Action<XElement>> GetXmlTransformers(XunitProject project)
+        [NotNull]
+        [ItemNotNull]
+        public static List<Action<XElement>> GetXmlTransformers([NotNull][ItemNotNull] XunitProject project)
             => project.Output
                 .Select(output => new Action<XElement>(xml => Instance._availableTransforms[output.Key].OutputHandler(xml, output.Value)))
                 .ToList();
 
-        private static void Handler_DirectWrite(XElement xml, string outputFileName)
+        private static void Handler_DirectWrite([NotNull] XElement xml, [NotNull] string outputFileName)
         {
             using (var stream = File.Create(outputFileName))
             {
@@ -65,7 +71,7 @@ namespace RvtTestRunner.Runner
             }
         }
 
-        private static void Handler_XslTransform(string resourceName, XElement xml, string outputFileName)
+        private static void Handler_XslTransform([NotNull] string resourceName, [NotNull] XElement xml, [NotNull] string outputFileName)
         {
             var xmlTransform = new XslCompiledTransform();
 
@@ -77,7 +83,6 @@ namespace RvtTestRunner.Runner
                 xmlTransform.Load(xsltReader);
                 xmlTransform.Transform(xmlReader, writer);
             }
-
         }
     }
 }

@@ -4,9 +4,14 @@
 
 namespace RvtTestRunner.Runner
 {
+    using JetBrains.Annotations;
+
     internal interface IFileSystem
     {
+        [NotNull]
         IFile File { get; }
+
+        [NotNull]
         IDirectory Directory { get; }
     }
 }

@@ -4,6 +4,7 @@
 
 namespace RvtTestRunner.UI
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Reactive.Linq;
     using System.Windows;
@@ -15,9 +16,15 @@ namespace RvtTestRunner.UI
 
     using ReactiveUI;
 
+    using RvtTestRunner.Util;
+
+    /// <summary>
+    /// ViewModel for the TestRunner control
+    /// </summary>
     public class TestRunnerControlViewModel : ReactiveObject
     {
         [CanBeNull]
+        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Analyzer bug. The field is used")]
         private string _selectedAssembly;
 
         [CanBeNull]
@@ -31,7 +38,7 @@ namespace RvtTestRunner.UI
             BrowseCommand = ReactiveCommand.Create(
                                                    () =>
                                                        {
-                                                           var vistaOpenFileDialog = new VistaOpenFileDialog()
+                                                           var vistaOpenFileDialog = new VistaOpenFileDialog
                                                                {
                                                                    Multiselect = true,
                                                                    Filter = "DLL files (*.dll)|*.dll"
@@ -60,39 +67,65 @@ namespace RvtTestRunner.UI
                                                            }
                                                        });
 
-            var canRemove = this.WhenAnyValue(x => x.SelectedAssembly, assembly => !assembly.IsNullOrWhiteSpace());
+            var canRemove = this.WhenAnyValue(x => x.SelectedAssembly, assembly => !assembly.IsNullOrWhiteSpace()).ObserveOnDispatcher();
 
             RemoveCommand = ReactiveCommand.Create(
                                                    () =>
                                                        {
                                                            SelectedAssemblies.Remove(SelectedAssembly);
-
                                                        },
                                                    canRemove);
 
-            CancelCommand = ReactiveCommand.Create((Window window) => window.Close());
+            CancelCommand = ReactiveCommand.Create((Window window) =>
+                {
+                    window.DialogResult = false;
+                    window.Close();
+                });
 
-            var canExecute = this.WhenAnyObservable(x => x.SelectedAssemblies.CountChanged).Select(count => count > 0);
+            var canExecute = this.WhenAnyObservable(x => x.SelectedAssemblies.CountChanged).ObserveOnDispatcher().Select(count => count > 0);
 
-            ExecuteCommand = ReactiveCommand.Create((Window window) => window.Close(), canExecute);
+            ExecuteCommand = ReactiveCommand.Create(
+                (Window window) =>
+                {
+                    window.DialogResult = true;
+                    window.Close();
+                }, canExecute);
         }
 
+        /// <summary>
+        /// Gets the command that removes the selected assembly from the list
+        /// </summary>
         [NotNull]
         public ICommand RemoveCommand { get; }
 
+        /// <summary>
+        /// Gets the command that opens a file browser window that allows assemblies to be added to the list
+        /// </summary>
         [NotNull]
         public ICommand BrowseCommand { get; }
 
+        /// <summary>
+        /// Gets the command that cancels the test running process and closes the window
+        /// </summary>
         [NotNull]
         public ICommand CancelCommand { get; }
 
+        /// <summary>
+        /// Gets the command that executes the tests in the selected assemblies and closes the window
+        /// </summary>
         [NotNull]
         public ICommand ExecuteCommand { get; }
 
+        /// <summary>
+        /// Gets the list of selected assemblies
+        /// </summary>
         [NotNull]
         [ItemNotNull]
         public ReactiveList<string> SelectedAssemblies { get; } = new ReactiveList<string>();
 
+        /// <summary>
+        /// Gets or sets the currently selected assembly
+        /// </summary>
         [CanBeNull]
         public string SelectedAssembly
         {

@@ -8,6 +8,10 @@ namespace RvtTestRunner.Runner
     using System.IO;
     using System.Reflection;
 
+    using JetBrains.Annotations;
+
+    using RvtTestRunner.Util;
+
     using Xunit.Abstractions;
 
     /// <summary>
@@ -17,6 +21,7 @@ namespace RvtTestRunner.Runner
     /// </summary>
     public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
     {
+        [NotNull]
         private readonly string _directory;
 
         /// <summary>
@@ -24,7 +29,7 @@ namespace RvtTestRunner.Runner
         ///     Constructs an instance using the given <paramref name="directory" /> for resolution.
         /// </summary>
         /// <param name="directory">The directory to use for resolving assemblies.</param>
-        public AssemblyHelper(string directory)
+        public AssemblyHelper([NotNull] string directory)
         {
             _directory = directory;
 
@@ -32,30 +37,56 @@ namespace RvtTestRunner.Runner
         }
 
         /// <summary>
+        /// Finalizes an instance of the <see cref="AssemblyHelper"/> class.
+        /// </summary>
+        ~AssemblyHelper()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
         ///     Subscribes to the current <see cref="AppDomain" /> <see cref="AppDomain.AssemblyResolve" /> event, to
         ///     provide automatic assembly resolution for assemblies in the runner.
         /// </summary>
+        /// <param name="path">
+        ///     The path from which to resolve the assembly. If null, will resolve to the path of the assembly
+        ///     containing this type
+        /// </param>
         /// <returns>An object which, when disposed, un-subscribes.</returns>
-        public static IDisposable SubscribeResolve(string path = null)
-            => new AssemblyHelper(path ?? Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase()));
+        [NotNull]
+        public static IDisposable SubscribeResolve([CanBeNull] string path = null)
+            => new AssemblyHelper(path ?? Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase()).ThrowIfNull());
 
         /// <summary>
         ///     Subscribes to the current <see cref="AppDomain" /> <see cref="AppDomain.AssemblyResolve" /> event, to
         ///     provide automatic assembly resolution from an assembly which has a .deps.json file from the .NET SDK
         ///     build process.
         /// </summary>
-        /// <returns>An object which, when disposed, un-subscribes.</returns>
-        public static IDisposable SubscribeResolveForAssembly(string assemblyFileName, IMessageSink internalDiagnosticsMessageSink = null)
+        /// <param name="assemblyFileName">The assembly file name</param>
+        /// <param name="internalDiagnosticsMessageSink">The message sink</param>
+        /// <returns>An object which, when disposed, unsubscribes.</returns>
+        [CanBeNull]
+        public static IDisposable SubscribeResolveForAssembly([NotNull] string assemblyFileName, [CanBeNull] IMessageSink internalDiagnosticsMessageSink = null)
             => DependencyContextAssemblyHelper.SubscribeResolveForAssembly(assemblyFileName, internalDiagnosticsMessageSink);
 
         /// <inheritdoc />
         public void Dispose()
         {
-            AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        private static Assembly LoadAssembly(string assemblyPath)
+        protected virtual void Dispose(bool disposing)
+        {
+            AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
+
+            if (disposing)
+            {
+            }
+        }
+
+        [CanBeNull]
+        private static Assembly LoadAssembly([NotNull] string assemblyPath)
         {
             try
             {
@@ -72,13 +103,15 @@ namespace RvtTestRunner.Runner
             return null;
         }
 
-        private Assembly LoadAssembly(AssemblyName assemblyName)
+        [CanBeNull]
+        private Assembly LoadAssembly([NotNull] AssemblyName assemblyName)
         {
             var path = Path.Combine(_directory, assemblyName.Name);
             return LoadAssembly(path + ".dll") ?? LoadAssembly(path + ".exe");
         }
 
-        private Assembly Resolve(object sender, ResolveEventArgs args)
+        [CanBeNull]
+        private Assembly Resolve([NotNull] object sender, [NotNull] ResolveEventArgs args)
             => LoadAssembly(new AssemblyName(args.Name));
     }
 }

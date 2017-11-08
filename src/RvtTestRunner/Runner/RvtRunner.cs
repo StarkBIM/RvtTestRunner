@@ -15,9 +15,14 @@ namespace RvtTestRunner.Runner
 
     using JetBrains.Annotations;
 
+    using RvtTestRunner.Util;
+
     using Xunit;
     using Xunit.Abstractions;
 
+    /// <summary>
+    /// The test runner that runs inside of Revit
+    /// </summary>
     public class RvtRunner
     {
         [NotNull]
@@ -33,6 +38,10 @@ namespace RvtTestRunner.Runner
         [NotNull]
         private IMessageSinkWithTypes _reporterMessageHandler;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RvtRunner"/> class.
+        /// </summary>
+        /// <param name="logger">The logger</param>
         public RvtRunner([NotNull] IRunnerLogger logger)
         {
             if (logger == null)
@@ -43,8 +52,18 @@ namespace RvtTestRunner.Runner
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public int EntryPoint(TestRunOptions options)
+        /// <summary>
+        /// Runs the tests with the given options
+        /// </summary>
+        /// <param name="options">The test run options</param>
+        /// <returns>The number of failed tests, or -1 if cancelled</returns>
+        public int EntryPoint([NotNull] TestRunOptions options)
         {
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+
             try
             {
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
@@ -71,20 +90,10 @@ namespace RvtTestRunner.Runner
 
                 if (_cancel)
                 {
-                    return -1073741510; // 0xC000013A: The application terminated as a result of a CTRL+C
+                    return -1;
                 }
 
-                if (!options.Wait)
-                {
-                    return failCount > 0 ? 1 : 0;
-                }
-
-                Console.WriteLine();
-                Console.Write("Press any key to continue...");
-                Console.ReadKey();
-                Console.WriteLine();
-
-                return failCount > 0 ? 1 : 0;
+                return failCount;
             }
             catch (ArgumentException ex)
             {
@@ -130,6 +139,7 @@ namespace RvtTestRunner.Runner
             {
                 executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
             }
+
             return executionOptions;
         }
 
@@ -240,7 +250,7 @@ namespace RvtTestRunner.Runner
                 // Setup discovery and execution options with command-line overrides
                 ITestFrameworkExecutionOptions executionOptions = ConfiguExecutionOptions(assembly, options);
 
-                var assemblyDisplayName = assembly.GetFileNameWithoutExtension();
+                var assemblyDisplayName = assembly.GetFileNameWithoutExtension().EmptyIfNull();
 
                 void LogAction(MessageHandlerArgs<IDiagnosticMessage> args, string assemblyName) => Console.WriteLine($"{assemblyDisplayName}: {args.Message.Message}");
 
@@ -284,14 +294,14 @@ namespace RvtTestRunner.Runner
         }
 
         private void ExecuteTests(
-            XunitProjectAssembly assembly,
-            TestRunOptions options,
-            XunitFilters filters,
-            XunitFrontController controller,
-            TestDiscoverySink discoverySink,
-            ITestFrameworkExecutionOptions executionOptions,
-            XElement assemblyElement,
-            DiagnosticMessageSink diagnosticMessageSink)
+            [NotNull] XunitProjectAssembly assembly,
+            [NotNull] TestRunOptions options,
+            [NotNull] XunitFilters filters,
+            [NotNull] XunitFrontController controller,
+            [NotNull] TestDiscoverySink discoverySink,
+            [NotNull] ITestFrameworkExecutionOptions executionOptions,
+            [CanBeNull] XElement assemblyElement,
+            [NotNull] DiagnosticMessageSink diagnosticMessageSink)
         {
             var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
             var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
@@ -527,31 +537,6 @@ namespace RvtTestRunner.Runner
             xmlTransformers.ForEach(transformer => transformer(assembliesElement));
 
             return _failed ? 1 : _completionMessages.Values.Sum(summary => summary.Failed);
-        }
-    }
-
-    public static class XunitExtensionMethods
-    {
-        [CanBeNull]
-        public static string GetFileName([NotNull] this XunitProjectAssembly assembly)
-        {
-            if (assembly == null)
-            {
-                throw new ArgumentNullException(nameof(assembly));
-            }
-
-            return Path.GetFileName(assembly.AssemblyFilename);
-        }
-
-        [CanBeNull]
-        public static string GetFileNameWithoutExtension([NotNull] this XunitProjectAssembly assembly)
-        {
-            if (assembly == null)
-            {
-                throw new ArgumentNullException(nameof(assembly));
-            }
-
-            return Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
         }
     }
 }

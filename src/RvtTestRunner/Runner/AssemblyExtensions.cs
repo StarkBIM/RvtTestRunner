@@ -7,15 +7,18 @@ namespace RvtTestRunner.Runner
     using System;
     using System.IO;
     using System.Reflection;
+    using JetBrains.Annotations;
 
     internal static class AssemblyExtensions
     {
-        public static string GetLocalCodeBase(this Assembly assembly)
+        [CanBeNull]
+        public static string GetLocalCodeBase([CanBeNull] this Assembly assembly)
         {
             return GetLocalCodeBase(assembly?.CodeBase, Path.DirectorySeparatorChar);
         }
 
-        public static string GetLocalCodeBase(string codeBase, char directorySeparator)
+        [CanBeNull]
+        public static string GetLocalCodeBase([CanBeNull] string codeBase, char directorySeparator)
         {
             if (codeBase == null)
             {

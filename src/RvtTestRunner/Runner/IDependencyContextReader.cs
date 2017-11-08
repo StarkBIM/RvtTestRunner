@@ -6,11 +6,12 @@ namespace RvtTestRunner.Runner
 {
     using System;
     using System.IO;
-
+    using JetBrains.Annotations;
     using Microsoft.Extensions.DependencyModel;
 
     internal interface IDependencyContextReader : IDisposable
     {
-        DependencyContext Read(Stream stream);
+        [NotNull]
+        DependencyContext Read([NotNull] Stream stream);
     }
 }
