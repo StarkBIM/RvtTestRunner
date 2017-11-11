@@ -1,13 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- StarkBIM.BIMSuite.RvtAddin
-     https://starkbim.com
-     © StarkBIM Inc., 2017
-	 
-	 The manifest file. -->
 <RevitAddIns>
   <AddIn Type="Application">
   	<AddInId>a7bc5ccc-71de-4224-98cd-d1b466e639d3</AddInId>
-    <Name>StarkBIM.BIMSuite.RvtAddin</Name>
+    <Name>RvtTestRunner</Name>
     <Assembly>C:\Path\To\RvtTestRunner.dll</Assembly>
     <FullClassName>RvtTestRunner.App</FullClassName>
     <VendorId>com.starkbim</VendorId>

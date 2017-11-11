@@ -9,6 +9,8 @@ namespace RvtTestRunner
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Windows;
+    using System.Windows.Interop;
 
     using Autodesk.Revit.Attributes;
     using Autodesk.Revit.DB;
@@ -44,10 +46,16 @@ namespace RvtTestRunner
 
                 var testRunnerControlViewModel = new TestRunnerControlViewModel();
 
+                var mainWindowHandlePtr = Process.GetCurrentProcess().MainWindowHandle;
+
                 var testRunnerWindow = new TestRunnerWindow
                     {
-                        DataContext = testRunnerControlViewModel
+                        DataContext = testRunnerControlViewModel,
+                        WindowStartupLocation = WindowStartupLocation.CenterOwner
                     };
+
+                // ReSharper disable once UnusedVariable
+                var wih = new WindowInteropHelper(testRunnerWindow) { Owner = mainWindowHandlePtr };
 
                 if (testRunnerWindow.ShowDialog() != true)
                 {
@@ -77,11 +85,6 @@ namespace RvtTestRunner
                 RvtRunnerLogger logger = new RvtRunnerLogger(stopWatch);
                 var testRunner = new TestRunner(logger);
 
-                /*
-                // Cheat and hardcode the assembly for now
-                const string AssemblyFileName =
-                    @"C:\Users\Colin\Source\Repos\SampleRevitAddin\test\StarkBIM.SampleRevitApp.RvtAddin.Test\bin\x64\2017\StarkBIM.SampleRevitApp.RvtAddin.Test.dll";*/
-
                 var result = testRunner.Run(assemblyList);
 
                 stopWatch.Stop();
@@ -90,7 +93,7 @@ namespace RvtTestRunner
 
                 new TaskDialog("Result")
                     {
-                        MainInstruction = $"Returned result: {result}. Total time elapsed: {stopWatch.Elapsed}",
+                        MainInstruction = $"Failing tests: {result}. Total time elapsed: {stopWatch.Elapsed}",
                         ExpandedContent = allMessages
                     }.Show();
 

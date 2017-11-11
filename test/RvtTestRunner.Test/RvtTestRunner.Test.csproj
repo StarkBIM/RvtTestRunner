@@ -285,6 +285,9 @@
     <PackageReference Include="reactiveui">
       <Version>8.0.0-alpha0110</Version>
     </PackageReference>
+    <PackageReference Include="ReactiveUI.WPF">
+      <Version>8.0.0-alpha0110</Version>
+    </PackageReference>
     <PackageReference Include="ResharperCodeContractNullability">
       <Version>1.0.8</Version>
     </PackageReference>
