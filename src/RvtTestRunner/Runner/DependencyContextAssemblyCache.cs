@@ -6,6 +6,7 @@ namespace RvtTestRunner.Runner
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -18,6 +19,7 @@ namespace RvtTestRunner.Runner
     using Xunit.Abstractions;
     using Xunit.Sdk;
 
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "xUnit class")]
     internal class DependencyContextAssemblyCache
     {
         [NotNull]

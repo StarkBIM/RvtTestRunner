@@ -6,6 +6,7 @@ namespace RvtTestRunner.Runner
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
 
     using JetBrains.Annotations;
@@ -17,6 +18,7 @@ namespace RvtTestRunner.Runner
     /// <summary>
     /// The set of options for a test run
     /// </summary>
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "Temporary - need to review options. Some are console-specific and irrelevant")]
     public class TestRunOptions
     {
         /// <summary>

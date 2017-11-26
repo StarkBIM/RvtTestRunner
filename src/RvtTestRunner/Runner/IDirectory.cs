@@ -4,8 +4,11 @@
 
 namespace RvtTestRunner.Runner
 {
+    using System.Diagnostics.CodeAnalysis;
+
     using JetBrains.Annotations;
 
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "xUnit class")]
     internal interface IDirectory
     {
         bool Exists([NotNull] string path);

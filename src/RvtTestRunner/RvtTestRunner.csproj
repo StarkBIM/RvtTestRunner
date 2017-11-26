@@ -250,7 +250,6 @@
     <Compile Include="Util\ExtensionMethods.cs" />
     <Compile Include="RunnerCommand.cs" />
     <Compile Include="Runner\AssemblyExtensions.cs" />
-    <Compile Include="Runner\AssemblyHelper.cs" />
     <Compile Include="Runner\DependencyContextAssemblyCache.cs" />
     <Compile Include="Runner\DependencyContextAssemblyHelper.cs" />
     <Compile Include="Runner\DiagnosticMessageSink.cs" />
@@ -262,8 +261,6 @@
     <Compile Include="Runner\IDirectory.cs" />
     <Compile Include="Runner\IFile.cs" />
     <Compile Include="Runner\IFileSystem.cs" />
-    <Compile Include="Runner\LongLivedMarshalByRefObject.cs" />
-    <Compile Include="Runner\ParallelismOption.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runner\ResolverUtils.cs" />
     <Compile Include="Runner\RvtRunner.cs" />

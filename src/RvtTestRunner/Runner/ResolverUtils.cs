@@ -4,10 +4,12 @@
 
 namespace RvtTestRunner.Runner
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using JetBrains.Annotations;
     using Microsoft.Extensions.DependencyModel;
 
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "xUnit class")]
     internal static class ResolverUtils
     {
         internal static bool TryResolvePackagePath([NotNull] IFileSystem fileSystem, [NotNull] CompilationLibrary library, [NotNull] string basePath, [NotNull] out string packagePath)

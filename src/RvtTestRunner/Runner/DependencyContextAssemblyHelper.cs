@@ -5,6 +5,7 @@
 namespace RvtTestRunner.Runner
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Reflection;
 
@@ -20,6 +21,7 @@ namespace RvtTestRunner.Runner
     /// <summary>
     ///     Assembly resolution helper for the dependency context
     /// </summary>
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "xUnit class")]
     internal class DependencyContextAssemblyHelper : IDisposable
     {
         [NotNull]

@@ -4,8 +4,10 @@
 
 namespace RvtTestRunner.Runner
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
 
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "xUnit class")]
     internal class DirectoryWrapper : IDirectory
     {
         public bool Exists(string path)
