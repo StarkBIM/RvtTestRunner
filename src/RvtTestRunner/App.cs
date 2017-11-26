@@ -1,4 +1,4 @@
-﻿// <copyright file="App.cs" company="StarkBIM Inc">
+// <copyright file="App.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 
@@ -11,25 +11,22 @@ namespace RvtTestRunner
     using JetBrains.Annotations;
 
     /// <summary>
-    /// The external application class that is loaded by Revit
+    ///     The external application class that is loaded by Revit
     /// </summary>
     public class App : IExternalApplication
     {
         /// <inheritdoc />
-        public Result OnShutdown([NotNull] UIControlledApplication application)
-        {
-            return Result.Succeeded;
-        }
+        public Result OnShutdown([NotNull] UIControlledApplication application) => Result.Succeeded;
 
         /// <inheritdoc />
         public Result OnStartup([NotNull] UIControlledApplication application)
         {
-            RibbonPanel ribbonPanel = application.CreateRibbonPanel(Tab.AddIns, "Test Runner");
+            var ribbonPanel = application.CreateRibbonPanel(Tab.AddIns, "Test Runner");
 
             var buttonData = new PushButtonData("TestRunner", "Test Runner", Assembly.GetExecutingAssembly().Location, typeof(RunnerCommand).FullName)
-                {
-                    AvailabilityClassName = typeof(AlwaysAvailable).FullName
-                };
+            {
+                AvailabilityClassName = typeof(AlwaysAvailable).FullName
+            };
 
             ribbonPanel.AddItem(buttonData);
 

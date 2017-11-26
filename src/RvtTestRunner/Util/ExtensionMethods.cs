@@ -1,4 +1,4 @@
-﻿// <copyright file="ExtensionMethods.cs" company="StarkBIM Inc">
+// <copyright file="ExtensionMethods.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 
@@ -22,15 +22,20 @@ namespace RvtTestRunner.Util
     public static class ExtensionMethods
     {
         /// <summary>
+        ///     Returns string.Empty if the given string is null, otherwise returns the original string
+        /// </summary>
+        /// <param name="str">The string</param>
+        /// <returns>string.Empty if the string is null, otherwise returns the original string</returns>
+        [NotNull]
+        public static string EmptyIfNull([CanBeNull] this string str) => str ?? string.Empty;
+
+        /// <summary>
         ///     Extension method to check if an object is null
         /// </summary>
         /// <param name="item">The object</param>
         /// <returns>True if null, otherwise false</returns>
         [ContractAnnotation("null=>true;notnull=>false;")]
-        public static bool IsNull([CanBeNull] this object item)
-        {
-            return item == null;
-        }
+        public static bool IsNull([CanBeNull] this object item) => item == null;
 
         /// <summary>
         ///     Checks whether a passed value is null if that value is a reference type. There are situations where the default
@@ -47,7 +52,7 @@ namespace RvtTestRunner.Util
             // It should be faster to check that the type is non-nullable through the GetTypeInfo call rather than to box the key to check for null
             // Checking for default is not a valid option here. The default value could be a legitimate key, whereas null cannot
             // The check for generic handles nullables, which are value types.
-            TypeInfo typeInfo = typeof(T).GetTypeInfo();
+            var typeInfo = typeof(T).GetTypeInfo();
             return (!typeInfo.IsValueType || typeInfo.IsGenericType) && value == null;
         }
 
@@ -57,10 +62,7 @@ namespace RvtTestRunner.Util
         /// <param name="str">The string</param>
         /// <returns>True if null or whitespace, otherwise false</returns>
         [ContractAnnotation("null => true")]
-        public static bool IsNullOrWhiteSpace([CanBeNull] this string str)
-        {
-            return string.IsNullOrWhiteSpace(str);
-        }
+        public static bool IsNullOrWhiteSpace([CanBeNull] this string str) => string.IsNullOrWhiteSpace(str);
 
         /// <summary>
         ///     Joins a list of strings into a single string, each separated by the specified separator
@@ -87,10 +89,7 @@ namespace RvtTestRunner.Util
         /// <returns>The joined string</returns>
         [NotNull]
         [Pure]
-        public static string JoinList([NotNull] [ItemNotNull] this IEnumerable<string> stringEnumerable)
-        {
-            return JoinList(stringEnumerable, Environment.NewLine);
-        }
+        public static string JoinList([NotNull] [ItemNotNull] this IEnumerable<string> stringEnumerable) => JoinList(stringEnumerable, Environment.NewLine);
 
         /// <summary>
         ///     Throws an ArgumentNullException when passed a null value.
@@ -132,17 +131,6 @@ namespace RvtTestRunner.Util
             }
 
             return item;
-        }
-
-        /// <summary>
-        ///     Returns string.Empty if the given string is null, otherwise returns the original string
-        /// </summary>
-        /// <param name="str">The string</param>
-        /// <returns>string.Empty if the string is null, otherwise returns the original string</returns>
-        [NotNull]
-        public static string EmptyIfNull([CanBeNull] this string str)
-        {
-            return str ?? string.Empty;
         }
     }
 }

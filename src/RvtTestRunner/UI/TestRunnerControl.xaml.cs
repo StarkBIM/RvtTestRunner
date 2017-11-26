@@ -1,4 +1,4 @@
-﻿// <copyright file="TestRunnerControl.xaml.cs" company="StarkBIM Inc">
+// <copyright file="TestRunnerControl.xaml.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 
@@ -12,9 +12,6 @@ namespace RvtTestRunner.UI
         /// <summary>
         /// Initializes a new instance of the <see cref="TestRunnerControl"/> class.
         /// </summary>
-        public TestRunnerControl()
-        {
-            InitializeComponent();
-        }
+        public TestRunnerControl() => InitializeComponent();
     }
 }

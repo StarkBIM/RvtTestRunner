@@ -1,4 +1,4 @@
-﻿// <copyright file="FileWrapper.cs" company="StarkBIM Inc">
+// <copyright file="FileWrapper.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 
@@ -10,32 +10,6 @@ namespace RvtTestRunner.Runner
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "xUnit class")]
     internal class FileWrapper : IFile
     {
-        public bool Exists(string path)
-        {
-            return File.Exists(path);
-        }
-
-        public string ReadAllText(string path)
-        {
-            return File.ReadAllText(path);
-        }
-
-        public Stream OpenRead(string path)
-        {
-            return File.OpenRead(path);
-        }
-
-        public Stream OpenFile(
-            string path,
-            FileMode fileMode,
-            FileAccess fileAccess,
-            FileShare fileShare,
-            int bufferSize,
-            FileOptions fileOptions)
-        {
-            return new FileStream(path, fileMode, fileAccess, fileShare, bufferSize, fileOptions);
-        }
-
         public void CreateEmptyFile(string path)
         {
             try
@@ -48,5 +22,19 @@ namespace RvtTestRunner.Runner
                 // ignored
             }
         }
+
+        public bool Exists(string path) => File.Exists(path);
+
+        public Stream OpenFile(
+            string path,
+            FileMode fileMode,
+            FileAccess fileAccess,
+            FileShare fileShare,
+            int bufferSize,
+            FileOptions fileOptions) => new FileStream(path, fileMode, fileAccess, fileShare, bufferSize, fileOptions);
+
+        public Stream OpenRead(string path) => File.OpenRead(path);
+
+        public string ReadAllText(string path) => File.ReadAllText(path);
     }
 }

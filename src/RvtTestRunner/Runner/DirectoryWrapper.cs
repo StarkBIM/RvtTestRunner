@@ -1,4 +1,4 @@
-﻿// <copyright file="DirectoryWrapper.cs" company="StarkBIM Inc">
+// <copyright file="DirectoryWrapper.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 
@@ -10,9 +10,6 @@ namespace RvtTestRunner.Runner
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "xUnit class")]
     internal class DirectoryWrapper : IDirectory
     {
-        public bool Exists(string path)
-        {
-            return Directory.Exists(path);
-        }
+        public bool Exists(string path) => Directory.Exists(path);
     }
 }

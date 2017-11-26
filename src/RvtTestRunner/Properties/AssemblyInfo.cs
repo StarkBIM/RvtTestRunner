@@ -1,4 +1,4 @@
-﻿// <copyright file="AssemblyInfo.cs" company="StarkBIM Inc">
+// <copyright file="AssemblyInfo.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 

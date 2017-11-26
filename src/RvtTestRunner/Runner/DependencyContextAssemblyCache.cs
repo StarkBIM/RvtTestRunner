@@ -1,4 +1,4 @@
-﻿// <copyright file="DependencyContextAssemblyCache.cs" company="StarkBIM Inc">
+// <copyright file="DependencyContextAssemblyCache.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 
@@ -62,9 +62,9 @@ namespace RvtTestRunner.Runner
 
             var currentRuntime = RuntimeEnvironment.GetRuntimeIdentifier();
             var fallbacks = dependencyContext.RuntimeGraph.FirstOrDefault(x => string.Equals(x.Runtime, currentRuntime, StringComparison.OrdinalIgnoreCase));
-            HashSet<string> compatibleRuntimes = fallbacks != null
-                                                     ? new HashSet<string>(fallbacks.Fallbacks, StringComparer.OrdinalIgnoreCase)
-                                                     : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var compatibleRuntimes = fallbacks != null
+                                         ? new HashSet<string>(fallbacks.Fallbacks, StringComparer.OrdinalIgnoreCase)
+                                         : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             compatibleRuntimes.Add(currentRuntime);
             compatibleRuntimes.Add(string.Empty);

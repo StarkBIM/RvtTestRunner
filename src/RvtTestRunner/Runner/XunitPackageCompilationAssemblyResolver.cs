@@ -1,4 +1,4 @@
-﻿// <copyright file="XunitPackageCompilationAssemblyResolver.cs" company="StarkBIM Inc">
+// <copyright file="XunitPackageCompilationAssemblyResolver.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 
@@ -9,10 +9,13 @@ namespace RvtTestRunner.Runner
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
+
     using JetBrains.Annotations;
+
     using Microsoft.DotNet.PlatformAbstractions;
     using Microsoft.Extensions.DependencyModel;
     using Microsoft.Extensions.DependencyModel.Resolution;
+
     using Xunit.Abstractions;
     using Xunit.Sdk;
 
@@ -21,16 +24,15 @@ namespace RvtTestRunner.Runner
     {
         [NotNull]
         private static readonly IFileSystem FileSystem = new FileSystemWrapper();
+
         [NotNull]
         [ItemNotNull]
         private readonly List<string> _nugetPackageDirectories;
 
-        public XunitPackageCompilationAssemblyResolver([CanBeNull] IMessageSink internalDiagnosticsMessageSink)
-        {
+        public XunitPackageCompilationAssemblyResolver([CanBeNull] IMessageSink internalDiagnosticsMessageSink) =>
             _nugetPackageDirectories = GetDefaultProbeDirectories(internalDiagnosticsMessageSink);
-        }
 
-        public bool TryResolveAssemblyPaths([NotNull] CompilationLibrary library, [NotNull][ItemNotNull] List<string> assemblies)
+        public bool TryResolveAssemblyPaths([NotNull] CompilationLibrary library, [NotNull] [ItemNotNull] List<string> assemblies)
         {
             if (_nugetPackageDirectories.Count == 0 || !string.Equals(library.Type, "package", StringComparison.OrdinalIgnoreCase))
             {
@@ -85,7 +87,7 @@ namespace RvtTestRunner.Runner
             }
             else
             {
-                string basePath = Environment.GetEnvironmentVariable(osPlatform == Platform.Windows ? "USERPROFILE" : "HOME");
+                var basePath = Environment.GetEnvironmentVariable(osPlatform == Platform.Windows ? "USERPROFILE" : "HOME");
 
                 if (!string.IsNullOrEmpty(basePath))
                 {
@@ -101,7 +103,7 @@ namespace RvtTestRunner.Runner
         }
 
         [ContractAnnotation("=>true,results:notnull;=>false,results:null")]
-        private static bool TryResolveFromPackagePath([NotNull] CompilationLibrary library, [NotNull] string basePath, [CanBeNull][ItemNotNull] out IEnumerable<string> results)
+        private static bool TryResolveFromPackagePath([NotNull] CompilationLibrary library, [NotNull] string basePath, [CanBeNull] [ItemNotNull] out IEnumerable<string> results)
         {
             var paths = new List<string>();
 

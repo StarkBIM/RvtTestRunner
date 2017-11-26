@@ -1,4 +1,4 @@
-﻿// <copyright file="DependencyContextAssemblyHelper.cs" company="StarkBIM Inc">
+// <copyright file="DependencyContextAssemblyHelper.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 
@@ -47,7 +47,7 @@ namespace RvtTestRunner.Runner
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="DependencyContextAssemblyHelper"/> class.
+        ///     Finalizes an instance of the <see cref="DependencyContextAssemblyHelper" /> class.
         /// </summary>
         ~DependencyContextAssemblyHelper()
         {

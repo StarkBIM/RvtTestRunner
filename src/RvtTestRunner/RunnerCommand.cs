@@ -1,11 +1,10 @@
-﻿// <copyright file="RunnerCommand.cs" company="StarkBIM Inc">
+// <copyright file="RunnerCommand.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 
 namespace RvtTestRunner
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -49,20 +48,23 @@ namespace RvtTestRunner
                 var mainWindowHandlePtr = Process.GetCurrentProcess().MainWindowHandle;
 
                 var testRunnerWindow = new TestRunnerWindow
-                    {
-                        DataContext = testRunnerControlViewModel,
-                        WindowStartupLocation = WindowStartupLocation.CenterOwner
-                    };
+                {
+                    DataContext = testRunnerControlViewModel,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                };
 
                 // ReSharper disable once UnusedVariable
-                var wih = new WindowInteropHelper(testRunnerWindow) { Owner = mainWindowHandlePtr };
+                var wih = new WindowInteropHelper(testRunnerWindow)
+                {
+                    Owner = mainWindowHandlePtr
+                };
 
                 if (testRunnerWindow.ShowDialog() != true)
                 {
                     return Result.Cancelled;
                 }
 
-                List<string> selectedAssemblyList = testRunnerControlViewModel.SelectedAssemblies.ToList();
+                var selectedAssemblyList = testRunnerControlViewModel.SelectedAssemblies.ToList();
 
                 if (!selectedAssemblyList.Any())
                 {
@@ -80,22 +82,22 @@ namespace RvtTestRunner
 
                 var assemblyList = selectedAssemblyList.Select(selectedAssembly => ((string AssemblyFileName, string Config))(selectedAssembly, null)).ToList();
 
-                Stopwatch stopWatch = Stopwatch.StartNew();
+                var stopWatch = Stopwatch.StartNew();
 
-                RvtRunnerLogger logger = new RvtRunnerLogger(stopWatch);
+                var logger = new RvtRunnerLogger(stopWatch);
                 var testRunner = new TestRunner(logger);
 
                 var result = testRunner.Run(assemblyList);
 
                 stopWatch.Stop();
 
-                string allMessages = logger.AllMessages.JoinList();
+                var allMessages = logger.AllMessages.JoinList();
 
                 new TaskDialog("Result")
-                    {
-                        MainInstruction = $"Failing tests: {result}. Total time elapsed: {stopWatch.Elapsed}",
-                        ExpandedContent = allMessages
-                    }.Show();
+                {
+                    MainInstruction = $"Failing tests: {result}. Total time elapsed: {stopWatch.Elapsed}",
+                    ExpandedContent = allMessages
+                }.Show();
 
                 Debug.WriteLine(result);
             }

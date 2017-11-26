@@ -1,4 +1,4 @@
-﻿// <copyright file="RvtRunnerLogger.cs" company="StarkBIM Inc">
+// <copyright file="RvtRunnerLogger.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 
@@ -86,9 +86,6 @@ namespace RvtTestRunner
         }
 
         [NotNull]
-        private string FormatMessage([NotNull] string severity, [CanBeNull] string message)
-        {
-            return $"[xUnit.net {Stopwatch.Elapsed}] {severity}: {message}";
-        }
+        private string FormatMessage([NotNull] string severity, [CanBeNull] string message) => $"[xUnit.net {Stopwatch.Elapsed}] {severity}: {message}";
     }
 }

@@ -1,4 +1,4 @@
-﻿// <copyright file="TestRunOptions.cs" company="StarkBIM Inc">
+// <copyright file="TestRunOptions.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 
@@ -16,15 +16,21 @@ namespace RvtTestRunner.Runner
     using Xunit;
 
     /// <summary>
-    /// The set of options for a test run
+    ///     The set of options for a test run
     /// </summary>
-    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:ElementsMustBeDocumented", Justification = "Temporary - need to review options. Some are console-specific and irrelevant")]
+    [SuppressMessage(
+        "StyleCop.CSharp.DocumentationRules",
+        "SA1600:ElementsMustBeDocumented",
+        Justification = "Temporary - need to review options. Some are console-specific and irrelevant")]
     public class TestRunOptions
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestRunOptions"/> class.
+        ///     Initializes a new instance of the <see cref="TestRunOptions" /> class.
         /// </summary>
-        /// <param name="assemblies">A list of tuples containing the assembly path and the assembly configuration file (configuration file is not yet supported)</param>
+        /// <param name="assemblies">
+        ///     A list of tuples containing the assembly path and the assembly configuration file
+        ///     (configuration file is not yet supported)
+        /// </param>
         /// <param name="reporter">The reporter</param>
         public TestRunOptions([NotNull] List<(string AssemblyFileName, string ConfigFile)> assemblies, [NotNull] IRunnerReporter reporter)
         {
@@ -75,10 +81,7 @@ namespace RvtTestRunner.Runner
         public bool Wait { get; set; }
 
         [NotNull]
-        private static string GetFullPath([NotNull] string fileName)
-        {
-            return Path.GetFullPath(fileName);
-        }
+        private static string GetFullPath([NotNull] string fileName) => Path.GetFullPath(fileName);
 
         [NotNull]
         [ItemNotNull]
@@ -93,11 +96,12 @@ namespace RvtTestRunner.Runner
 
             foreach (var assembly in assemblies)
             {
-                result.Add(new XunitProjectAssembly
-                {
-                    AssemblyFilename = GetFullPath(assembly.AssemblyFileName),
-                    ConfigFilename = !assembly.ConfigFile.IsNullOrWhiteSpace() ? GetFullPath(assembly.ConfigFile) : null
-                });
+                result.Add(
+                           new XunitProjectAssembly
+                           {
+                               AssemblyFilename = GetFullPath(assembly.AssemblyFileName),
+                               ConfigFilename = !assembly.ConfigFile.IsNullOrWhiteSpace() ? GetFullPath(assembly.ConfigFile) : null
+                           });
             }
 
             return result;

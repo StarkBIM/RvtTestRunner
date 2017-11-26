@@ -1,4 +1,4 @@
-﻿// <copyright file="RvtRunner.cs" company="StarkBIM Inc">
+// <copyright file="RvtRunner.cs" company="StarkBIM Inc">
 // Copyright (c) StarkBIM Inc. All rights reserved.
 // </copyright>
 
@@ -21,7 +21,7 @@ namespace RvtTestRunner.Runner
     using Xunit.Abstractions;
 
     /// <summary>
-    /// The test runner that runs inside of Revit
+    ///     The test runner that runs inside of Revit
     /// </summary>
     public class RvtRunner
     {
@@ -39,7 +39,7 @@ namespace RvtTestRunner.Runner
         private IMessageSinkWithTypes _reporterMessageHandler;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RvtRunner"/> class.
+        ///     Initializes a new instance of the <see cref="RvtRunner" /> class.
         /// </summary>
         /// <param name="logger">The logger</param>
         public RvtRunner([NotNull] IRunnerLogger logger)
@@ -53,7 +53,7 @@ namespace RvtTestRunner.Runner
         }
 
         /// <summary>
-        /// Runs the tests with the given options
+        ///     Runs the tests with the given options
         /// </summary>
         /// <param name="options">The test run options</param>
         /// <returns>The number of failed tests, or -1 if cancelled</returns>
@@ -121,19 +121,19 @@ namespace RvtTestRunner.Runner
                 throw new ArgumentNullException(nameof(options));
             }
 
-            bool stopOnFail = options.StopOnFail;
+            var stopOnFail = options.StopOnFail;
 
-            ITestFrameworkExecutionOptions executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
+            var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
             executionOptions.SetStopOnTestFail(stopOnFail);
 
-            int? maxThreadCount = options.MaxParallelThreads;
+            var maxThreadCount = options.MaxParallelThreads;
 
             if (maxThreadCount.HasValue)
             {
                 executionOptions.SetMaxParallelThreads(maxThreadCount);
             }
 
-            bool? parallelizeTestCollections = options.ParallelizeTestCollections;
+            var parallelizeTestCollections = options.ParallelizeTestCollections;
 
             if (parallelizeTestCollections.HasValue)
             {
@@ -155,15 +155,15 @@ namespace RvtTestRunner.Runner
                 throw new ArgumentNullException(nameof(options));
             }
 
-            bool diagnosticMessages = options.DiagnosticMessages;
-            bool internalDiagnosticMessages = options.InternalDiagnosticMessages;
+            var diagnosticMessages = options.DiagnosticMessages;
+            var internalDiagnosticMessages = options.InternalDiagnosticMessages;
 
             // Turn off pre-enumeration of theories, since there is no theory selection UI in this runner
             assembly.Configuration.PreEnumerateTheories = false;
             assembly.Configuration.DiagnosticMessages |= diagnosticMessages;
             assembly.Configuration.InternalDiagnosticMessages |= internalDiagnosticMessages;
 
-            bool noAppDomain = options.NoAppDomain;
+            var noAppDomain = options.NoAppDomain;
 
             if (noAppDomain)
             {
@@ -234,7 +234,7 @@ namespace RvtTestRunner.Runner
                 return null;
             }
 
-            bool internalDiagnosticMessages = options.InternalDiagnosticMessages;
+            var internalDiagnosticMessages = options.InternalDiagnosticMessages;
 
             var assemblyElement = needsXml ? new XElement("assembly") : null;
 
@@ -248,7 +248,7 @@ namespace RvtTestRunner.Runner
                 ConfigureAssembly(assembly, options);
 
                 // Setup discovery and execution options with command-line overrides
-                ITestFrameworkExecutionOptions executionOptions = ConfiguExecutionOptions(assembly, options);
+                var executionOptions = ConfiguExecutionOptions(assembly, options);
 
                 var assemblyDisplayName = assembly.GetFileNameWithoutExtension().EmptyIfNull();
 
@@ -305,9 +305,9 @@ namespace RvtTestRunner.Runner
         {
             var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
             var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
-            bool serialize = options.Serialize;
-            bool failSkips = options.FailSkips;
-            bool stopOnFail = options.StopOnFail;
+            var serialize = options.Serialize;
+            var failSkips = options.FailSkips;
+            var stopOnFail = options.StopOnFail;
 
             var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
@@ -470,9 +470,9 @@ namespace RvtTestRunner.Runner
                 throw new ArgumentNullException(nameof(options));
             }
 
-            XunitProject project = options.Project;
+            var project = options.Project;
 
-            bool? parallelizeAssemblies = options.ParallelizeAssemblies;
+            var parallelizeAssemblies = options.ParallelizeAssemblies;
 
             XElement assembliesElement = null;
             var clockTime = Stopwatch.StartNew();
