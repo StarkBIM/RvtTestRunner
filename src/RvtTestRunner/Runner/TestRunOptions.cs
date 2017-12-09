@@ -94,13 +94,13 @@ namespace RvtTestRunner.Runner
 
             var result = new XunitProject();
 
-            foreach (var assembly in assemblies)
+            foreach (var (assemblyFileName, configFile) in assemblies)
             {
                 result.Add(
                            new XunitProjectAssembly
                            {
-                               AssemblyFilename = GetFullPath(assembly.AssemblyFileName),
-                               ConfigFilename = !assembly.ConfigFile.IsNullOrWhiteSpace() ? GetFullPath(assembly.ConfigFile) : null
+                               AssemblyFilename = GetFullPath(assemblyFileName),
+                               ConfigFilename = !configFile.IsNullOrWhiteSpace() ? GetFullPath(configFile) : null
                            });
             }
 
