@@ -246,6 +246,7 @@
   <ItemGroup>
     <Compile Include="AlwaysAvailable.cs" />
     <Compile Include="App.cs" />
+    <Compile Include="AssemblyResolver.cs" />
     <Compile Include="Runner\XunitExtensionMethods.cs" />
     <Compile Include="Util\ExtensionMethods.cs" />
     <Compile Include="RunnerCommand.cs" />
