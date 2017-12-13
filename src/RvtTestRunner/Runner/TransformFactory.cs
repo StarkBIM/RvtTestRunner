@@ -89,6 +89,8 @@ namespace RvtTestRunner.Runner
         {
             var xmlTransform = new XslCompiledTransform();
 
+            var settings = new XmlReaderSettings();
+
             using (var writer = XmlWriter.Create(
                                                  outputFileName,
                                                  new XmlWriterSettings
@@ -96,7 +98,7 @@ namespace RvtTestRunner.Runner
                                                      Indent = true
                                                  }))
             using (var xsltStream = typeof(TransformFactory).GetTypeInfo().Assembly.GetManifestResourceStream($"Xunit.ConsoleClient.{resourceName}"))
-            using (var xsltReader = XmlReader.Create(xsltStream.ThrowIfNull()))
+            using (var xsltReader = XmlReader.Create(xsltStream.ThrowIfNull(), settings))
             using (var xmlReader = xml.CreateReader())
             {
                 xmlTransform.Load(xsltReader);

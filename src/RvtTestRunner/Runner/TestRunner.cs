@@ -6,6 +6,7 @@ namespace RvtTestRunner.Runner
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
 
     using JetBrains.Annotations;
 
@@ -23,6 +24,7 @@ namespace RvtTestRunner.Runner
         ///     Initializes a new instance of the <see cref="TestRunner" /> class.
         /// </summary>
         /// <param name="logger">The logger</param>
+        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "Analyzer bug")]
         public TestRunner([NotNull] IRunnerLogger logger) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         /// <summary>

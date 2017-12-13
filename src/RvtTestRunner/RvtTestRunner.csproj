@@ -250,20 +250,9 @@
     <Compile Include="Runner\XunitExtensionMethods.cs" />
     <Compile Include="Util\ExtensionMethods.cs" />
     <Compile Include="RunnerCommand.cs" />
-    <Compile Include="Runner\AssemblyExtensions.cs" />
-    <Compile Include="Runner\DependencyContextAssemblyCache.cs" />
-    <Compile Include="Runner\DependencyContextAssemblyHelper.cs" />
     <Compile Include="Runner\DiagnosticMessageSink.cs" />
     <Compile Include="Runner\DictionaryExtensions.cs" />
-    <Compile Include="Runner\DirectoryWrapper.cs" />
-    <Compile Include="Runner\FileSystemWrapper.cs" />
-    <Compile Include="Runner\FileWrapper.cs" />
-    <Compile Include="Runner\IDependencyContextReader.cs" />
-    <Compile Include="Runner\IDirectory.cs" />
-    <Compile Include="Runner\IFile.cs" />
-    <Compile Include="Runner\IFileSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Runner\ResolverUtils.cs" />
     <Compile Include="Runner\RvtRunner.cs" />
     <Compile Include="RvtRunnerLogger.cs" />
     <Compile Include="RvtUnitTestAttribute.cs" />
@@ -271,7 +260,6 @@
     <Compile Include="Runner\TestRunOptions.cs" />
     <Compile Include="Runner\Transform.cs" />
     <Compile Include="Runner\TransformFactory.cs" />
-    <Compile Include="Runner\XunitPackageCompilationAssemblyResolver.cs" />
     <Compile Include="UI\TestRunnerControl.xaml.cs">
       <DependentUpon>TestRunnerControl.xaml</DependentUpon>
     </Compile>
