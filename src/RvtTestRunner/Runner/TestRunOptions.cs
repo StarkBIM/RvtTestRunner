@@ -11,8 +11,6 @@ namespace RvtTestRunner.Runner
 
     using JetBrains.Annotations;
 
-    using RvtTestRunner.Util;
-
     using Xunit;
 
     /// <summary>
@@ -32,7 +30,7 @@ namespace RvtTestRunner.Runner
         ///     (configuration file is not yet supported)
         /// </param>
         /// <param name="reporter">The reporter</param>
-        public TestRunOptions([NotNull] List<(string AssemblyFileName, string ConfigFile)> assemblies, [NotNull] IRunnerReporter reporter)
+        public TestRunOptions([NotNull][ItemNotNull] IEnumerable<string> assemblies, [NotNull] IRunnerReporter reporter)
         {
             Reporter = reporter;
             Project = GetProjectFile(assemblies);
@@ -47,9 +45,12 @@ namespace RvtTestRunner.Runner
         public bool FailSkips { get; set; }
 
         [CanBeNull]
+        public int? LongRunningSeconds { get; set; } = 10;
+
+        [CanBeNull]
         public int? MaxParallelThreads { get; set; }
 
-        public bool NoAppDomain { get; set; }
+        public bool NoAppDomain { get; set; } = true;
 
         public bool NoAutoReporters { get; set; }
 
@@ -85,7 +86,7 @@ namespace RvtTestRunner.Runner
 
         [NotNull]
         [ItemNotNull]
-        private static XunitProject GetProjectFile([NotNull] IEnumerable<(string AssemblyFileName, string ConfigFile)> assemblies)
+        private static XunitProject GetProjectFile([NotNull][ItemNotNull] IEnumerable<string> assemblies)
         {
             if (assemblies == null)
             {
@@ -94,13 +95,15 @@ namespace RvtTestRunner.Runner
 
             var result = new XunitProject();
 
-            foreach (var (assemblyFileName, configFile) in assemblies)
+            foreach (var assemblyFileName in assemblies)
             {
+                // Can't let XUnit set the config file because it sets it to Revit.exe.config
+                string configFilename = GetFullPath($"{assemblyFileName}.config");
                 result.Add(
                            new XunitProjectAssembly
                            {
                                AssemblyFilename = GetFullPath(assemblyFileName),
-                               ConfigFilename = !configFile.IsNullOrWhiteSpace() ? GetFullPath(configFile) : null
+                               ConfigFilename = configFilename
                            });
             }
 

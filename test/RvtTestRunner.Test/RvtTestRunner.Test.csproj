@@ -59,6 +59,7 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <LangVersion>7.1</LangVersion>
+    <CodeAnalysisRuleSet>..\..\TestClassRuleSet.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == '2018|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -256,6 +257,7 @@
       <Link>stylecop.json</Link>
     </AdditionalFiles>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\TestRunnerControlViewModelTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac">
@@ -285,6 +287,9 @@
     <PackageReference Include="reactiveui">
       <Version>8.0.0-alpha0117</Version>
     </PackageReference>
+    <PackageReference Include="ReactiveUI.Testing">
+      <Version>8.0.0-alpha0117</Version>
+    </PackageReference>
     <PackageReference Include="ReactiveUI.WPF">
       <Version>8.0.0-alpha0117</Version>
     </PackageReference>
@@ -301,6 +306,11 @@
       <Version>2.3.1</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\RvtTestRunner\RvtTestRunner.csproj">
+      <Project>{9d680c27-e296-4024-9399-8ef8f2a9522d}</Project>
+      <Name>RvtTestRunner</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
