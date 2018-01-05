@@ -5,7 +5,6 @@
 namespace RvtTestRunner.Runner
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
 
     using JetBrains.Annotations;
@@ -30,13 +29,13 @@ namespace RvtTestRunner.Runner
         /// <summary>
         ///     Runs all tests contained in the given assemblies (config is not handled yet)
         /// </summary>
-        /// <param name="assemblies">The paths for assemblies containing tests to be run</param>
+        /// <param name="options">The test run options</param>
         /// <returns>The number of failed tests, or -1 if cancelled</returns>
-        public int Run([NotNull] List<(string AssemblyFileName, string ConfigFile)> assemblies)
+        public int Run([NotNull] TestRunOptions options)
         {
-            if (assemblies == null)
+            if (options == null)
             {
-                throw new ArgumentNullException(nameof(assemblies));
+                throw new ArgumentNullException(nameof(options));
             }
 
             using (AssemblyHelper.SubscribeResolve())
@@ -52,10 +51,6 @@ namespace RvtTestRunner.Runner
                 }
 
                 var reporter = result ?? new DefaultRunnerReporterWithTypes();*/
-
-                var reporter = new DefaultRunnerReporterWithTypes();
-
-                var options = new TestRunOptions(assemblies, reporter);
 
                 try
                 {

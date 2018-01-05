@@ -5,9 +5,11 @@
 namespace RvtTestRunner
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Reactive.Concurrency;
     using System.Windows;
     using System.Windows.Interop;
 
@@ -20,6 +22,8 @@ namespace RvtTestRunner
     using RvtTestRunner.Runner;
     using RvtTestRunner.UI;
     using RvtTestRunner.Util;
+
+    using Xunit;
 
     /// <summary>
     ///     The external command that will allow a user to select assemblies and run tests
@@ -43,7 +47,7 @@ namespace RvtTestRunner
             {
                 CommandData = commandData ?? throw new ArgumentNullException(nameof(commandData));
 
-                var testRunnerControlViewModel = new TestRunnerControlViewModel();
+                var testRunnerControlViewModel = new TestRunnerControlViewModel(DispatcherScheduler.Current);
 
                 var mainWindowHandlePtr = Process.GetCurrentProcess().MainWindowHandle;
 
@@ -80,14 +84,20 @@ namespace RvtTestRunner
                     return Result.Failed;
                 }
 
-                var assemblyList = selectedAssemblyList.Select(selectedAssembly => ((string AssemblyFileName, string Config))(selectedAssembly, null)).ToList();
+                List<string> assemblyList = BuildAssemblyList(testRunnerControlViewModel);
 
                 var stopWatch = Stopwatch.StartNew();
 
                 var logger = new RvtRunnerLogger(stopWatch);
                 var testRunner = new TestRunner(logger);
 
-                var result = testRunner.Run(assemblyList);
+                var reporter = new DefaultRunnerReporterWithTypes();
+
+                var options = new TestRunOptions(assemblyList, reporter);
+
+                SetEnableCommandDataOption(options, testRunnerControlViewModel.AllowCommandDataAccess);
+
+                var result = testRunner.Run(options);
 
                 stopWatch.Stop();
 
@@ -112,6 +122,64 @@ namespace RvtTestRunner
             }
 
             return Result.Succeeded;
+        }
+
+        [NotNull]
+        [ItemNotNull]
+        private static List<string> BuildAssemblyList([NotNull] TestRunnerControlViewModel testRunnerControlViewModel)
+        {
+            var selectedAssemblyList = testRunnerControlViewModel.SelectedAssemblies.ToList();
+
+            if (!testRunnerControlViewModel.CopyDllsToNewFolder)
+            {
+                return selectedAssemblyList;
+            }
+
+            var assemblyList = new List<string>();
+
+            string tempPath = Path.GetTempPath();
+            string tempFolder = Path.Combine(tempPath, "StarkBIM");
+            if (!Directory.Exists(tempFolder))
+            {
+                Directory.CreateDirectory(tempFolder);
+            }
+
+            foreach (var assembly in selectedAssemblyList)
+            {
+                string sourceDirectory = Path.GetDirectoryName(assembly).ThrowIfNull();
+
+                var folderName = $"{DateTime.Now.Ticks}";
+                var destinationDirectory = Path.Combine(tempFolder, folderName);
+                Directory.CreateDirectory(destinationDirectory);
+
+                // Now Create all of the directories
+                foreach (string dirPath in Directory.GetDirectories(sourceDirectory, "*", SearchOption.AllDirectories))
+                {
+                    Directory.CreateDirectory(dirPath.Replace(sourceDirectory, destinationDirectory));
+                }
+
+                // Copy all the files & Replaces any files with the same name
+                foreach (string newPath in Directory.GetFiles(sourceDirectory, "*.*", SearchOption.AllDirectories))
+                {
+                    File.Copy(newPath, newPath.Replace(sourceDirectory, destinationDirectory), true);
+                }
+
+                string newAssembly = assembly.Replace(sourceDirectory, destinationDirectory);
+                assemblyList.Add(newAssembly);
+            }
+
+            return assemblyList;
+        }
+
+        private static void SetEnableCommandDataOption([NotNull] TestRunOptions options, bool enableCommandData)
+        {
+            options.MaxParallelThreads = enableCommandData ? 1 : (int?)null;
+
+            options.NoAppDomain = enableCommandData;
+
+            options.ParallelizeAssemblies = enableCommandData ? false : (bool?)null;
+
+            options.ParallelizeTestCollections = enableCommandData ? false : (bool?)null;
         }
     }
 }

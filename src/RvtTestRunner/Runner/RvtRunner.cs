@@ -140,6 +140,13 @@ namespace RvtTestRunner.Runner
                 executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
             }
 
+            var longRunningSeconds = options.LongRunningSeconds;
+
+            if (longRunningSeconds.HasValue)
+            {
+                assembly.Configuration.LongRunningTestSeconds = longRunningSeconds.Value;
+            }
+
             return executionOptions;
         }
 

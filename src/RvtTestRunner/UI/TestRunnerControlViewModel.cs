@@ -4,8 +4,10 @@
 
 namespace RvtTestRunner.UI
 {
+    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
+    using System.Reactive.Concurrency;
     using System.Reactive.Linq;
     using System.Windows;
     using System.Windows.Input;
@@ -23,6 +25,9 @@ namespace RvtTestRunner.UI
     /// </summary>
     public class TestRunnerControlViewModel : ReactiveObject
     {
+        [NotNull]
+        private readonly ObservableAsPropertyHelper<bool> _isCopyDllsToNewFolderEnabled;
+
         [CanBeNull]
         [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Analyzer bug. The field is used")]
         private string _selectedAssembly;
@@ -30,11 +35,21 @@ namespace RvtTestRunner.UI
         [CanBeNull]
         private string _lastSelectedFolder;
 
+        private bool _allowCommandDataAccess;
+
+        private bool _copyDllsToNewFolder;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="TestRunnerControlViewModel" /> class.
         /// </summary>
-        public TestRunnerControlViewModel()
+        /// <param name="scheduler">The scheduler</param>
+        public TestRunnerControlViewModel([NotNull] IScheduler scheduler)
         {
+            if (scheduler == null)
+            {
+                throw new ArgumentNullException(nameof(scheduler));
+            }
+
             BrowseCommand = ReactiveCommand.Create(
                                                    () =>
                                                    {
@@ -67,7 +82,7 @@ namespace RvtTestRunner.UI
                                                        }
                                                    });
 
-            var canRemove = this.WhenAnyValue(x => x.SelectedAssembly, assembly => !assembly.IsNullOrWhiteSpace()).ObserveOnDispatcher();
+            var canRemove = this.WhenAnyValue(x => x.SelectedAssembly, assembly => !assembly.IsNullOrWhiteSpace()).ObserveOn(scheduler);
 
             RemoveCommand = ReactiveCommand.Create(
                                                    () => { SelectedAssemblies.Remove(SelectedAssembly); },
@@ -80,7 +95,7 @@ namespace RvtTestRunner.UI
                                                        window.Close();
                                                    });
 
-            var canExecute = this.WhenAnyObservable(x => x.SelectedAssemblies.CountChanged).ObserveOnDispatcher().Select(count => count > 0);
+            var canExecute = this.WhenAnyObservable(x => x.SelectedAssemblies.CountChanged).ObserveOn(scheduler).Select(count => count > 0);
 
             ExecuteCommand = ReactiveCommand.Create(
                                                     (Window window) =>
@@ -89,6 +104,17 @@ namespace RvtTestRunner.UI
                                                         window.Close();
                                                     },
                                                     canExecute);
+
+            this.WhenAnyValue(x => x.AllowCommandDataAccess).ToProperty(this, x => x.IsCopyDllsToNewFolderEnabled, out _isCopyDllsToNewFolderEnabled);
+
+            this.WhenAnyValue(x => x.IsCopyDllsToNewFolderEnabled).Subscribe(
+                                                                             b =>
+                                                                             {
+                                                                                 if (!b)
+                                                                                 {
+                                                                                     CopyDllsToNewFolder = false;
+                                                                                 }
+                                                                             });
         }
 
         /// <summary>
@@ -131,5 +157,30 @@ namespace RvtTestRunner.UI
             get => _selectedAssembly;
             set => this.RaiseAndSetIfChanged(ref _selectedAssembly, value);
         }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether to allow access to Revit command data
+        ///     Enabling this value will disable running tests in their own AppDomain and disable test parallelization
+        /// </summary>
+        public bool AllowCommandDataAccess
+        {
+            get => _allowCommandDataAccess;
+            set => this.RaiseAndSetIfChanged(ref _allowCommandDataAccess, value);
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether to copy the tests DLLs to a new folder
+        ///     Only necessary when command data access is enabled, since otherwise the DLLs will be unloaded after testing
+        /// </summary>
+        public bool CopyDllsToNewFolder
+        {
+            get => _copyDllsToNewFolder;
+            set => this.RaiseAndSetIfChanged(ref _copyDllsToNewFolder, value);
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether the Copy DLLs to new folder checkbox is enabled
+        /// </summary>
+        public bool IsCopyDllsToNewFolderEnabled => _isCopyDllsToNewFolderEnabled.Value;
     }
 }
